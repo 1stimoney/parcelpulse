@@ -68,20 +68,23 @@ export default function TrackPage() {
     if (!id) return setError('Enter a tracking ID.')
 
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 700))
+    try {
+      const res = await fetch('/api/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trackingId: id }),
+      })
 
-    if (
-      id.toUpperCase().includes('PP') ||
-      id.toUpperCase().includes('PARCEL')
-    ) {
-      setResult({ ...demo, trackingId: id })
-    } else {
-      setError('Tracking ID not found. Try something like PP-2048-KD.')
+      const json = await res.json()
+      if (!res.ok) throw new Error(json?.error || 'Failed to track')
+
+      setResult(json.shipment)
+    } catch (e: any) {
+      setError(e.message || 'Tracking failed')
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }
-
   return (
     <main className='mx-auto max-w-3xl px-4 py-10'>
       <div className='flex items-center justify-between'>
