@@ -1,12 +1,13 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import Link from 'next/link'
 import { CustomLoader } from '@/components/custom-loader'
+import { ProgressBar } from '@/components/progress-bar'
 
 type Status =
   | 'Label created'
@@ -84,77 +85,82 @@ export default function TrackPage() {
   return (
     <main className='mx-auto max-w-3xl px-4 py-10'>
       <div className='flex items-center justify-between'>
-        <Link href='/' className='text-sm text-zinc-300 hover:text-white'>
+        <Link href='/' className='text-sm text-zinc-200/80 hover:text-white'>
           ← Back
         </Link>
-        <p className='text-sm font-medium'>ParcelPulse</p>
+        <p className='text-sm font-medium tracking-tight'>ParcelPulse</p>
       </div>
 
       <h1 className='mt-6 text-2xl font-semibold tracking-tight sm:text-3xl'>
         Track your parcel
       </h1>
-      <p className='mt-2 text-sm text-zinc-400'>
+      <p className='mt-2 text-sm text-zinc-200/70'>
         Enter your tracking ID to see delivery updates.
       </p>
 
-      <Card className='mt-5 border-zinc-800 bg-zinc-900/60'>
+      <Card className='mt-5 glass glow-ring rounded-2xl'>
         <CardHeader>
           <CardTitle className='text-base'>Tracking</CardTitle>
         </CardHeader>
         <CardContent className='flex flex-col gap-3 sm:flex-row'>
           <Input
-            className='bg-zinc-950/50 border-zinc-800'
+            className='bg-white/5 border-white/10 text-white placeholder:text-zinc-300/50'
             placeholder='e.g. PP-2048-KD'
             value={trackingId}
             onChange={(e) => setTrackingId(e.target.value)}
             onKeyDown={(e) => (e.key === 'Enter' ? onTrack() : null)}
           />
-          <Button className='rounded-xl' onClick={onTrack} disabled={loading}>
+          <Button
+            className='rounded-xl bg-white text-black hover:bg-zinc-200'
+            onClick={onTrack}
+            disabled={loading}
+          >
             {loading ? 'Checking...' : 'Track'}
           </Button>
         </CardContent>
       </Card>
 
       {loading ? (
-        <div className='mt-4 rounded-xl border border-zinc-800 bg-zinc-950/40 p-4'>
+        <div className='mt-4 glass rounded-2xl p-4'>
           <CustomLoader label='Fetching updates' />
         </div>
       ) : null}
 
       {error ? (
-        <div className='mt-4 rounded-xl border border-red-900/60 bg-red-950/40 p-4 text-sm text-red-200'>
+        <div className='mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200'>
           {error}
         </div>
       ) : null}
 
       {result ? (
-        <Card className='mt-4 border-zinc-800 bg-zinc-900/60'>
+        <Card className='mt-4 glass rounded-2xl'>
           <CardHeader className='space-y-2'>
             <div className='flex flex-wrap items-center justify-between gap-2'>
               <CardTitle className='text-base'>
                 Shipment: {result.trackingId}
               </CardTitle>
-              <Badge className='bg-zinc-800 text-zinc-100 hover:bg-zinc-800'>
+              <Badge className='glass-strong text-zinc-100 hover:bg-white/10'>
                 {result.current}
               </Badge>
             </div>
-            <p className='text-sm text-zinc-400'>
+
+            <p className='text-sm text-zinc-200/70'>
               Estimated delivery: {result.eta}
             </p>
-          </CardHeader>
 
+            <div className='mt-3 glass rounded-2xl p-3'>
+              <ProgressBar status={result.current} />
+            </div>
+          </CardHeader>
           <CardContent className='space-y-3'>
             {result.timeline.map((t, i) => (
-              <div
-                key={i}
-                className='rounded-xl border border-zinc-800 bg-zinc-950/40 p-3'
-              >
+              <div key={i} className='glass rounded-2xl p-3'>
                 <div className='flex items-center justify-between gap-2'>
-                  <p className='text-sm font-medium'>{t.status}</p>
-                  <p className='text-xs text-zinc-400'>{t.time}</p>
+                  <p className='text-sm font-medium text-white'>{t.status}</p>
+                  <p className='text-xs text-zinc-200/60'>{t.time}</p>
                 </div>
                 {t.note ? (
-                  <p className='mt-1 text-xs text-zinc-400'>{t.note}</p>
+                  <p className='mt-1 text-xs text-zinc-200/70'>{t.note}</p>
                 ) : null}
               </div>
             ))}
