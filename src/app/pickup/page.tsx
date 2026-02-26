@@ -81,12 +81,14 @@ export default function PickupPage() {
 
       <Card className='mt-5 glass glow-ring rounded-2xl'>
         <CardHeader>
-          <CardTitle className='text-base'>Pickup details</CardTitle>
+          <CardTitle className='text-base text-shadow-amber-100'>
+            Pickup details
+          </CardTitle>
         </CardHeader>
 
         <CardContent className='grid gap-4 sm:grid-cols-2'>
           <div className='space-y-2'>
-            <Label>Full name *</Label>
+            <Label className='text-amber-50'>Full name *</Label>
             <Input
               className='bg-white/5 border-white/10'
               value={form.full_name}
@@ -95,7 +97,7 @@ export default function PickupPage() {
           </div>
 
           <div className='space-y-2'>
-            <Label>Phone *</Label>
+            <Label className='text-amber-50'>Phone *</Label>
             <Input
               className='bg-white/5 border-white/10'
               value={form.phone}
@@ -104,7 +106,7 @@ export default function PickupPage() {
           </div>
 
           <div className='space-y-2 sm:col-span-2'>
-            <Label>Pickup address *</Label>
+            <Label className='text-amber-50'>Pickup address *</Label>
             <Input
               className='bg-white/5 border-white/10'
               value={form.pickup_address}
@@ -113,7 +115,7 @@ export default function PickupPage() {
           </div>
 
           <div className='space-y-2 sm:col-span-2'>
-            <Label>Dropoff address *</Label>
+            <Label className='text-amber-50'>Dropoff address *</Label>
             <Input
               className='bg-white/5 border-white/10'
               value={form.dropoff_address}
@@ -122,7 +124,7 @@ export default function PickupPage() {
           </div>
 
           <div className='space-y-2 sm:col-span-2'>
-            <Label>Package description *</Label>
+            <Label className='text-amber-50'>Package description *</Label>
             <Input
               className='bg-white/5 border-white/10'
               value={form.package_desc}
@@ -131,7 +133,7 @@ export default function PickupPage() {
           </div>
 
           <div className='space-y-2'>
-            <Label>Weight (kg)</Label>
+            <Label className='text-amber-50'>Weight (kg)</Label>
             <Input
               className='bg-white/5 border-white/10'
               value={form.weight_kg}
@@ -140,7 +142,7 @@ export default function PickupPage() {
           </div>
 
           <div className='space-y-2'>
-            <Label>Notes</Label>
+            <Label className='text-amber-50'>Notes</Label>
             <Input
               className='bg-white/5 border-white/10'
               value={form.notes}
