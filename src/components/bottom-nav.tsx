@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, ScanSearch, PackagePlus } from 'lucide-react'
+import { Home, ScanSearch, PackagePlus, Shield } from 'lucide-react'
 
 const items = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/track', label: 'Track', icon: ScanSearch },
   { href: '/pickup', label: 'Pickup', icon: PackagePlus },
+  { href: '/admin', label: 'Admin', icon: Shield },
 ]
 
 export function BottomNav() {
