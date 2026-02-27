@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useMemo, useState } from 'react'
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CustomLoader } from '@/components/custom-loader'
 import { ProgressBar } from '@/components/progress-bar'
+import dynamic from 'next/dynamic'
 
 type Status =
   | 'Label created'
@@ -28,6 +30,10 @@ export default function TrackPage() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<TrackingResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const RiderMap = dynamic(
+    () => import('@/components/rider-map').then((m) => m.RiderMap),
+    { ssr: false },
+  )
 
   const demo = useMemo<TrackingResult>(
     () => ({
@@ -57,7 +63,7 @@ export default function TrackPage() {
         },
       ],
     }),
-    []
+    [],
   )
 
   async function onTrack() {
@@ -153,6 +159,14 @@ export default function TrackPage() {
 
             <div className='mt-3 glass rounded-2xl p-3'>
               <ProgressBar status={result.current} />
+              {result.current === 'Out for delivery' && (
+                <div className='mt-4 glass rounded-2xl p-3'>
+                  <p className='text-sm mb-2 text-zinc-200'>
+                    Rider is on the way 🚚
+                  </p>
+                  <RiderMap />
+                </div>
+              )}
             </div>
           </CardHeader>
           <CardContent className='space-y-3'>

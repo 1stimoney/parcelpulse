@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useMemo, useState } from 'react'
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CustomLoader } from '@/components/custom-loader'
 import { ProgressBar } from '@/components/progress-bar'
+import { AdminTabs } from '@/components/admin-tabs'
 
 const STATUS_PRESETS = [
   'Label created',
@@ -35,6 +37,8 @@ export default function AdminPage() {
   const [createForm, setCreateForm] = useState({
     sender_name: '',
     sender_phone: '',
+    sender_email: '',
+    receiver_email: '',
     pickup_address: '',
     receiver_name: '',
     receiver_phone: '',
@@ -91,6 +95,8 @@ export default function AdminPage() {
       setCreateForm({
         sender_name: '',
         sender_phone: '',
+        sender_email: '',
+        receiver_email: '',
         pickup_address: '',
         receiver_name: '',
         receiver_phone: '',
@@ -128,6 +134,12 @@ export default function AdminPage() {
     } finally {
       setLoadingShipment(false)
     }
+  }
+
+  async function logout() {
+    await fetch('/api/admin/logout', { method: 'POST', cache: 'no-store' })
+    window.dispatchEvent(new Event('pp_admin_changed'))
+    window.location.replace('/admin-login')
   }
 
   async function addEvent() {
@@ -170,10 +182,19 @@ export default function AdminPage() {
           <p className='mt-1 text-sm text-zinc-200/70'>
             Create shipments, update status timeline, and test tracking.
           </p>
+          <AdminTabs />
         </div>
         <Badge className='glass-strong text-zinc-100 hover:bg-white/10 rounded-xl'>
           ParcelPulse Ops
         </Badge>
+
+        <Button
+          onClick={logout}
+          variant='outline'
+          className='rounded-xl border-white/15 bg-white/5 text-white hover:bg-white/10'
+        >
+          Logout
+        </Button>
       </div>
 
       <div className='mt-6 grid gap-4 lg:grid-cols-2'>
@@ -194,6 +215,16 @@ export default function AdminPage() {
               onChange={(v) => setC('sender_phone', v)}
             />
             <Field
+              label='Sender email'
+              value={createForm.sender_email}
+              onChange={(v) => setC('sender_email', v)}
+            />
+            <Field
+              label='Receiver email'
+              value={createForm.receiver_email}
+              onChange={(v) => setC('receiver_email', v)}
+            />
+            <Field
               label='Receiver name'
               value={createForm.receiver_name}
               onChange={(v) => setC('receiver_name', v)}
@@ -205,7 +236,7 @@ export default function AdminPage() {
             />
 
             <div className='space-y-2 sm:col-span-2'>
-              <Label>Pickup address *</Label>
+              <Label className='text-amber-100'>Pickup address *</Label>
               <Input
                 className='bg-white/5 border-white/10'
                 value={createForm.pickup_address}
@@ -214,7 +245,7 @@ export default function AdminPage() {
             </div>
 
             <div className='space-y-2 sm:col-span-2'>
-              <Label>Dropoff address *</Label>
+              <Label className='text-amber-100'>Dropoff address *</Label>
               <Input
                 className='bg-white/5 border-white/10'
                 value={createForm.dropoff_address}
@@ -223,7 +254,7 @@ export default function AdminPage() {
             </div>
 
             <div className='space-y-2 sm:col-span-2'>
-              <Label>ETA (optional)</Label>
+              <Label className='text-amber-100'>ETA (optional)</Label>
               <Input
                 className='bg-white/5 border-white/10'
                 placeholder='e.g. Today, 6:00 PM'
@@ -344,11 +375,11 @@ export default function AdminPage() {
 
                   <div className='grid gap-3 sm:grid-cols-2'>
                     <div className='space-y-2'>
-                      <Label>Status</Label>
+                      <Label className='text-amber-100'>Status</Label>
                       <select
                         value={eventStatus}
                         onChange={(e) => setEventStatus(e.target.value as any)}
-                        className='w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500/40'
+                        className='w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-amber-50 outline-none focus:ring-2 focus:ring-indigo-500/40'
                       >
                         {STATUS_PRESETS.map((s) => (
                           <option key={s} value={s} className='bg-zinc-950'>
@@ -359,7 +390,7 @@ export default function AdminPage() {
                     </div>
 
                     <div className='space-y-2'>
-                      <Label>Note (optional)</Label>
+                      <Label className='text-amber-100'>Note (optional)</Label>
                       <Input
                         className='bg-white/5 border-white/10'
                         placeholder='e.g. Arrived at hub'
@@ -425,7 +456,7 @@ function Field({
 }) {
   return (
     <div className='space-y-2'>
-      <Label>{label}</Label>
+      <Label className='text-amber-100'>{label}</Label>
       <Input
         className='bg-white/5 border-white/10'
         value={value}

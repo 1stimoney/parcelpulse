@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useState } from 'react'
@@ -20,6 +21,8 @@ export default function PickupPage() {
     package_desc: '',
     weight_kg: '1',
     notes: '',
+    sender_email: '',
+    receiver_email: '',
   })
 
   const set = (k: keyof typeof form, v: string) =>
@@ -52,7 +55,7 @@ export default function PickupPage() {
       if (!res.ok) throw new Error(json?.error || 'Failed')
 
       setOkMsg(
-        `Pickup request submitted ✅ (Ref: ${json.request.id.slice(0, 8)})`
+        `Pickup request submitted ✅ (Ref: ${json.request.id.slice(0, 8)})`,
       )
       setForm({
         full_name: '',
@@ -62,6 +65,8 @@ export default function PickupPage() {
         package_desc: '',
         weight_kg: '1',
         notes: '',
+        sender_email: '',
+        receiver_email: '',
       })
     } catch (e: any) {
       setErrMsg(e.message || 'Something went wrong')
@@ -102,6 +107,26 @@ export default function PickupPage() {
               className='bg-white/5 border-white/10'
               value={form.phone}
               onChange={(e) => set('phone', e.target.value)}
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <Label className='text-amber-50'>Sender Email *</Label>
+            <Input
+              className='bg-white/5 border-white/10'
+              value={form.sender_email}
+              onChange={(e) => set('sender_email', e.target.value)}
+              placeholder='you@example.com'
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <Label>Receiver email *</Label>
+            <Input
+              className='bg-white/5 border-white/10'
+              value={form.receiver_email}
+              onChange={(e) => set('receiver_email', e.target.value)}
+              placeholder='receiver@example.com'
             />
           </div>
 

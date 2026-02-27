@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase/server'
+import { appUrl, sendMail } from '@/lib/mail'
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => null)
@@ -13,7 +14,7 @@ export async function POST(req: Request) {
   if (!trackingId || !status) {
     return NextResponse.json(
       { error: 'trackingId and status are required' },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
@@ -42,6 +43,47 @@ export async function POST(req: Request) {
     .from('shipments')
     .update({ current_status: status })
     .eq('id', shipment.id)
+
+  const { data: emails } = await supabase
+    .from('shipments')
+    .select('sender_email,receiver_email,eta')
+    .eq('id', shipment.id)
+    .single()
+
+  const recipients = [emails?.sender_email, emails?.receiver_email].filter(
+    Boolean,
+  ) as string[]
+  if (recipients.length) {
+    const trackLink = appUrl(`/track`)
+    try {
+      await sendMail({
+        to: recipients,
+        subject: `ParcelPulse — Update: ${trackingId} is now "${status}"`,
+        html: `
+        <div style="font-family:ui-sans-serif,system-ui;line-height:1.6">
+          <h2 style="margin:0 0 8px">Delivery update 🔔</h2>
+          <p style="margin:0 0 12px">Tracking ID: <b>${trackingId}</b></p>
+          <p style="margin:0 0 6px"><b>New status:</b> ${status}</p>
+          ${note ? `<p style="margin:0 0 6px"><b>Note:</b> ${escapeHtml(note)}</p>` : ''}
+          <p style="margin:0 0 6px"><b>ETA:</b> ${emails?.eta || 'TBD'}</p>
+          <p style="margin:12px 0 0">
+            Track here: <a href="${trackLink}">${trackLink}</a>
+          </p>
+        </div>
+      `,
+        text: `Update: ${trackingId} is now "${status}". Track: ${trackLink}`,
+      })
+    } catch {}
+  }
+
+  function escapeHtml(s: string) {
+    return String(s)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;')
+  }
 
   if (upErr) return NextResponse.json({ error: upErr.message }, { status: 500 })
 

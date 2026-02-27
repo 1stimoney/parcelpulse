@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase/server'
+import { appUrl, sendMail } from '@/lib/mail'
 
 function makeTrackingId() {
   // PP- + 6 hex chars
@@ -19,6 +20,8 @@ export async function POST(req: Request) {
     sender_name,
     sender_phone,
     pickup_address,
+    sender_email,
+    receiver_email,
     receiver_name,
     receiver_phone,
     dropoff_address,
@@ -28,7 +31,7 @@ export async function POST(req: Request) {
   if (!pickup_address || !dropoff_address) {
     return NextResponse.json(
       { error: 'pickup_address and dropoff_address are required' },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
@@ -44,6 +47,8 @@ export async function POST(req: Request) {
         tracking_id,
         sender_name: sender_name || null,
         sender_phone: sender_phone || null,
+        sender_email,
+        receiver_email: receiver_email || null,
         pickup_address,
         receiver_name: receiver_name || null,
         receiver_phone: receiver_phone || null,
@@ -67,6 +72,32 @@ export async function POST(req: Request) {
       note: 'Shipment created',
     })
 
+    const trackLink = appUrl(`/track`)
+
+    const recipients = [sender_email, receiver_email].filter(
+      Boolean,
+    ) as string[]
+    if (recipients.length) {
+      try {
+        await sendMail({
+          to: recipients,
+          subject: `ParcelPulse — Shipment created (${tracking_id})`,
+          html: `
+        <div style="font-family:ui-sans-serif,system-ui;line-height:1.6">
+          <h2 style="margin:0 0 8px">Shipment created ✅</h2>
+          <p style="margin:0 0 12px">Tracking ID: <b>${tracking_id}</b></p>
+          <p style="margin:0 0 6px"><b>Status:</b> Label created</p>
+          <p style="margin:0 0 6px"><b>ETA:</b> ${shipment.eta || 'TBD'}</p>
+          <p style="margin:12px 0 0">
+            Track here: <a href="${trackLink}">${trackLink}</a>
+          </p>
+        </div>
+      `,
+          text: `Shipment created. Tracking ID: ${tracking_id}. Track: ${trackLink}`,
+        })
+      } catch {}
+    }
+
     if (evErr)
       return NextResponse.json({ error: evErr.message }, { status: 500 })
 
@@ -75,6 +106,6 @@ export async function POST(req: Request) {
 
   return NextResponse.json(
     { error: 'Failed to generate unique tracking ID' },
-    { status: 500 }
+    { status: 500 },
   )
 }
